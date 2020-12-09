@@ -15,4 +15,32 @@ public class Test : MonoBehaviour
     {
         
     }
+
+    public void OnMoveClick()
+    {
+        MsgMove mm = new MsgMove()
+        {
+            x = 120,
+            y = 111,
+            z = 0
+        };
+        NetManager.Send(mm);
+    }
+
+    public void OnConnectClick()
+    {
+        NetManager.Connect("127.0.0.1", 8888);
+    }
+
+}
+
+
+public class MsgMove : MsgBase
+{
+    public MsgMove() { msgName = "MsgMove"; }
+
+    public int x = 1;
+    public int y = 1;
+    public int z = 1;
+    
 }
