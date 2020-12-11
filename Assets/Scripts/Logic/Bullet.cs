@@ -8,12 +8,13 @@ public class Bullet : MonoBehaviour
 	public float speed = 100f;
 	public BaseTank tank;
 	private GameObject model;
+	private float life = 10f;
 
 	
 	public void Init(BaseTank bt)
 	{
 		
-		GameObject modelRes = ResManager.LoadPrefab("bulletPrefab");
+		GameObject modelRes = ResManager.LoadPrefab("BulletPrefab");
 		model = Instantiate(modelRes);
 		model.transform.parent = transform;
 		model.transform.localPosition = Vector3.zero;
@@ -28,6 +29,11 @@ public class Bullet : MonoBehaviour
 	void Update()
 	{
 		transform.position += transform.forward * speed * Time.deltaTime;
+		life -= Time.deltaTime;
+		if(life  <= 0)
+        {
+			Destroy(gameObject);
+        }
 	}
 
 	
@@ -47,9 +53,9 @@ public class Bullet : MonoBehaviour
 			hitTank.Attacked(35);
 		}
 		
-		GameObject explode = ResManager.LoadPrefab("fire");
+		GameObject explode = ResManager.LoadPrefab("Fire");
 		Instantiate(explode, transform.position, transform.rotation);
-		
-		Destroy(gameObject);
+		Destroy(explode, 1);
+		Destroy(gameObject, 1);
 	}
 }

@@ -44,7 +44,7 @@ public class BaseTank : MonoBehaviour
 			return;
 		}
 
-		GameObject bulletObj = new GameObject("bullet");
+		GameObject bulletObj = new GameObject("Bullet");
 		Bullet bullet = bulletObj.AddComponent<Bullet>();
 		bullet.Init(this);
 
@@ -66,7 +66,7 @@ public class BaseTank : MonoBehaviour
 
 		if (IsDie())
 		{
-			GameObject explode = ResManager.LoadPrefab("explosion");
+			GameObject explode = ResManager.LoadPrefab("Explosion");
 			Instantiate(explode, transform.position, transform.rotation);
 		}
 	}

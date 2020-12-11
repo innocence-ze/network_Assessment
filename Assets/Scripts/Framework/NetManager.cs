@@ -342,6 +342,7 @@ public static class NetManager
     public static void Update()
     {
         MsgUpdate();
+        PingUpdate();
     }
 
     public static void MsgUpdate()

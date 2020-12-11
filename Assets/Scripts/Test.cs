@@ -33,14 +33,3 @@ public class Test : MonoBehaviour
     }
 
 }
-
-
-public class MsgMove : MsgBase
-{
-    public MsgMove() { msgName = "MsgMove"; }
-
-    public int x = 1;
-    public int y = 1;
-    public int z = 1;
-    
-}
