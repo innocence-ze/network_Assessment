@@ -13,6 +13,7 @@ public class GameMain : MonoBehaviour
         NetManager.AddEventListener(NetManager.EventType.close, OnConnectClose);
 
         PanelManager.Init();
+        BattleManager.Init();
         PanelManager.Open<LoginPanel>();
     }
 

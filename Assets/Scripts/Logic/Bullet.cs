@@ -57,5 +57,6 @@ public class Bullet : MonoBehaviour
 		Instantiate(explode, transform.position, transform.rotation);
 		Destroy(explode, 1);
 		Destroy(gameObject, 1);
+		gameObject.SetActive(false);
 	}
 }

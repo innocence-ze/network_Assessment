@@ -45,6 +45,7 @@ public class RoomPanel : BasePanel
         NetManager.RemoveMSGlistener("MsgStartBattle", OnMsgStartBattle);
     }
 
+    //TODO
     private void OnMsgStartBattle(MsgBase msgbase)
     {
         MsgStartBattle msg = msgbase as MsgStartBattle;

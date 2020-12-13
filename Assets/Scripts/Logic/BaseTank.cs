@@ -19,6 +19,9 @@ public class BaseTank : MonoBehaviour
 
     public float hp = 100;
 
+	public string id = "";
+	public int camp = 0;
+
 	public void Start()
 	{
 
