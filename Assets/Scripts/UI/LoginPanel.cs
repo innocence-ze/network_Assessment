@@ -54,11 +54,9 @@ public class LoginPanel : BasePanel
         {
             Debug.Log("login succeed");
 
-            GameObject tankObj = new GameObject("MyTank");
-            CtrlTank ctrlTank = tankObj.AddComponent<CtrlTank>();
-            ctrlTank.Init("TankPrefab");
-            tankObj.AddComponent<CameraFollow>();
             GameMain.id = ml.id;
+            PanelManager.Open<RoomListPanel>();
+
             Close();
         }
         else

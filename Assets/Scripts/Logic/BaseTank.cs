@@ -22,6 +22,8 @@ public class BaseTank : MonoBehaviour
 	public string id = "";
 	public int camp = 0;
 
+	protected Rigidbody rb;
+
 	public void Start()
 	{
 
@@ -33,6 +35,7 @@ public class BaseTank : MonoBehaviour
 		model = Instantiate(modelRes);
 		model.transform.parent = this.transform;
 		model.transform.localPosition = Vector3.zero;
+		rb = model.GetComponent<Rigidbody>();
 
 		turret = model.transform.Find("Turret");
 		gun = turret.transform.Find("Gun");
@@ -40,18 +43,19 @@ public class BaseTank : MonoBehaviour
 	}
 
 
-	public void Fire()
+	public Bullet Fire()
 	{
 		if (IsDie())
 		{
-			return;
+			return null;
 		}
 
 		GameObject bulletObj = new GameObject("Bullet");
 		Bullet bullet = bulletObj.AddComponent<Bullet>();
-		bullet.Init(this);
+        bullet.Init(this);
 
 		lastFireTime = Time.time;
+		return bullet;
 	}
 
 	public bool IsDie()
@@ -70,7 +74,8 @@ public class BaseTank : MonoBehaviour
 		if (IsDie())
 		{
 			GameObject explode = ResManager.LoadPrefab("Explosion");
-			Instantiate(explode, transform.position, transform.rotation);
+            GameObject e = Instantiate(explode, transform.position, transform.rotation);
+			e.transform.SetParent(transform);
 		}
 	}
 

@@ -50,13 +50,36 @@ public class Bullet : MonoBehaviour
 		
 		if (hitTank != null)
 		{
-			hitTank.Attacked(35);
+			SendMsgHit(tank, hitTank);
 		}
 		
 		GameObject explode = ResManager.LoadPrefab("Fire");
-		Instantiate(explode, transform.position, transform.rotation);
+		explode = Instantiate(explode, transform.position, transform.rotation);
 		Destroy(explode, 1);
 		Destroy(gameObject, 1);
 		gameObject.SetActive(false);
 	}
+
+	void SendMsgHit(BaseTank tank, BaseTank hitTank)
+    {
+		if(hitTank==null || tank == null)
+        {
+			return;
+        }
+
+		if(tank.id != GameMain.id)
+        {
+			return;
+        }
+
+		MsgHit msg = new MsgHit
+		{
+			targetId = hitTank.id,
+			id = tank.id,
+			x = transform.position.x,
+			y = transform.position.y,
+			z = transform.position.z,
+		};
+		NetManager.Send(msg);
+    }
 }

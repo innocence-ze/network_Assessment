@@ -22,12 +22,9 @@ public class TipPanel : BasePanel
 
         okButton.onClick.AddListener(OnOkClick);
 
-        if(arg.Length >= 1)
+        if(arg.Length == 1)
         {
-            foreach(var a in arg)
-            {
-                text.text += (string)a;
-            }
+            text.text = (string)arg[0];
         }
     }
 

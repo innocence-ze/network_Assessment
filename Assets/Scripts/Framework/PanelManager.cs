@@ -49,6 +49,10 @@ public static class PanelManager
 
     public static void Close(string name)
     {
+        if (!panelDic.ContainsKey(name))
+        {
+            return;
+        }
         BasePanel panel = panelDic[name];
         if(panel == null)
         {

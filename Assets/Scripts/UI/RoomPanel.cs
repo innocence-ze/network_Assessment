@@ -45,13 +45,12 @@ public class RoomPanel : BasePanel
         NetManager.RemoveMSGlistener("MsgStartBattle", OnMsgStartBattle);
     }
 
-    //TODO
     private void OnMsgStartBattle(MsgBase msgbase)
     {
         MsgStartBattle msg = msgbase as MsgStartBattle;
         if(msg.result == 0)
         {
-
+            Close();
         }
         else
         {
@@ -75,6 +74,7 @@ public class RoomPanel : BasePanel
         }
     }
 
+    //TODO
     private void OnMsgGetRoomInfo(MsgBase msgbase)
     {
         MsgGetRoomInfo msg = msgbase as MsgGetRoomInfo;
@@ -92,6 +92,7 @@ public class RoomPanel : BasePanel
         }
     }
 
+    //TODO
     private void GeneratePlayerInfo(PlayerInfo playerInfo)
     {
         GameObject o = Instantiate(playerObj);

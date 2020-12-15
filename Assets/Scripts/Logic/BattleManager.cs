@@ -11,6 +11,9 @@ public class BattleManager
         NetManager.AddMsgListener("MsgEnterBattle", OnMsgEnterBattle);
         NetManager.AddMsgListener("MsgBattleResult", OnMsgBattleResult);
         NetManager.AddMsgListener("MsgLeaveBattle", OnMsgLeaveBattle);
+        NetManager.AddMsgListener("MsgFire",OnMsgFire);
+        NetManager.AddMsgListener("MsgSyncTank", OnMsgSyncTank);
+        NetManager.AddMsgListener("MsgHit", OnMsgHit);
     }
 
     public static void AddTank(string id, BaseTank tank)
@@ -76,6 +79,7 @@ public class BattleManager
 
         tank.camp = tankInfo.camp;
         tank.id = tankInfo.id;
+        tank.hp = tankInfo.hp;
 
         if (tank.camp == 1)
         {
@@ -123,6 +127,59 @@ public class BattleManager
             RemoveTank(msg.id);
             Object.Destroy(tank.gameObject);
         }
+    }
+
+    public static void OnMsgSyncTank(MsgBase msgBase)
+    {
+        MsgSyncTank msg = msgBase as MsgSyncTank;
+
+        if(msg.id == GameMain.id)
+        {
+            return;
+        }
+
+        SyncTank tank = GetTank(msg.id) as SyncTank;
+        if(tank == null)
+        {
+            return;
+        }
+
+        tank.SyncPos(msg);
+    }
+
+    public static void OnMsgFire(MsgBase msgBase)
+    {
+        MsgFire msg = msgBase as MsgFire;
+        if(msg.id == GameMain.id)
+        {
+            return;
+        }
+
+        SyncTank tank = GetTank(msg.id) as SyncTank;
+        if(tank == null)
+        {
+            return;
+        }
+
+        tank.SyncFire(msg);
+    }
+
+    public static void OnMsgHit(MsgBase msgBase)
+    {
+        MsgHit msg = msgBase as MsgHit;
+        if(msg.id == GameMain.id)
+        {
+            return;
+        }
+
+        BaseTank tank = GetTank(msg.id);
+        if(tank == null)
+        {
+            return;
+        }
+
+        tank.Attacked(msg.damage);
+
     }
 
 }

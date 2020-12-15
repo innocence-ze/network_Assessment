@@ -217,7 +217,7 @@ public static class NetManager
 
         //decode body
         int bodyCount = bodyLength - nameCount;
-        MsgBase msg = MsgBase.Decode(msgName, receiveBuffer.bytes, readIndex, bodyCount);
+        MsgBase msg = MsgBase.Decode(msgName, receiveBuffer.bytes, receiveBuffer.readIndex, bodyCount);
         receiveBuffer.readIndex += bodyCount;
         receiveBuffer.CheckAndMove();
         lock (msgList)
@@ -342,7 +342,7 @@ public static class NetManager
     public static void Update()
     {
         MsgUpdate();
-        PingUpdate();
+        //PingUpdate();
     }
 
     public static void MsgUpdate()
@@ -385,15 +385,18 @@ public static class NetManager
             MsgPing msgPing = new MsgPing();
             Send(msgPing);
             lastPingTime = Time.time;
+            Debug.Log("Send ping at: " + lastPingTime);
         }
         if(Time.time - lastPongTime > 4* pingInterval)
         {
+            Debug.Log("Close");
             Close();
         }
     }
 
     private static void OnMsgPong(MsgBase msg)
     {
+        Debug.Log("Receive pong");
         lastPongTime = Time.time;
     }
 

@@ -11,7 +11,12 @@ public class CameraFollow : MonoBehaviour
 	// Use this for initialization
 	void Start()
 	{
-
+		Vector3 pos = transform.position;
+		Vector3 forward = transform.forward;
+		Vector3 targetPos = pos + forward * distance.z;
+		targetPos.y += distance.y;
+		Camera.main.transform.position = targetPos;
+		Camera.main.transform.LookAt(pos + offset);
 	}
 
 	void LateUpdate()
