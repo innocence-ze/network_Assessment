@@ -6,10 +6,10 @@ public class BaseTank : MonoBehaviour
 {
     private GameObject model;
 
-    public float rotateSpeed = 20;
-    public float speed = 3;
+    public float rotateSpeed = 30;
+    public float speed = 8;
 
-    public float turretRotateSpeed = 30;
+    public float turretRotateSpeed = 50;
     public Transform turret;
     public Transform gun;
 
@@ -29,13 +29,16 @@ public class BaseTank : MonoBehaviour
 
 	}
 
-	public void Init(string skinPath)
+	public virtual void Init(string skinPath)
 	{
 		GameObject modelRes = ResManager.LoadPrefab(skinPath);
 		model = Instantiate(modelRes);
 		model.transform.parent = this.transform;
 		model.transform.localPosition = Vector3.zero;
-		rb = model.GetComponent<Rigidbody>();
+		rb = gameObject.AddComponent<Rigidbody>();
+		BoxCollider bc = gameObject.AddComponent<BoxCollider>();
+		bc.center = new Vector3(0.4f, 2.5f, 1.47f);
+		bc.size = new Vector3(7, 5, 12);
 
 		turret = model.transform.Find("Turret");
 		gun = turret.transform.Find("Gun");

@@ -50,6 +50,9 @@ public class ResultPanel : BasePanel
 	public void OnOkClick()
 	{
 		PanelManager.Open<RoomPanel>();
+		
+		NetManager.Send(MsgLeaveBattle)
+
 		Close();
 	}
 }

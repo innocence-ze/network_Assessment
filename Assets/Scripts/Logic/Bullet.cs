@@ -20,6 +20,14 @@ public class Bullet : MonoBehaviour
 		model.transform.localPosition = Vector3.zero;
 		model.transform.localEulerAngles = Vector3.zero;
 
+		var rb = gameObject.AddComponent<Rigidbody>();
+		rb.useGravity = false;
+		rb.mass = 0.1f;
+
+		var sc = gameObject.AddComponent<SphereCollider>();
+		sc.radius = 0.52f;
+		sc.isTrigger = true;
+
 		tank = bt;
 		transform.position = bt.firePoint.position;
 		transform.rotation = bt.firePoint.rotation;
@@ -36,11 +44,10 @@ public class Bullet : MonoBehaviour
         }
 	}
 
-	
-	void OnCollisionEnter(Collision collisionInfo)
+    private void OnTriggerEnter(Collider other)
 	{
 		
-		GameObject collObj = collisionInfo.gameObject;
+		GameObject collObj = other.gameObject;
 		BaseTank hitTank = collObj.GetComponent<BaseTank>();
 		
 		if (hitTank != null && hitTank == tank)

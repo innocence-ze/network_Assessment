@@ -14,7 +14,7 @@ public class SyncTank : BaseTank
 	private float forecastTime;
 
 
-	public new void Init(string skinPath)
+	public override void Init(string skinPath)
 	{
 		base.Init(skinPath);
 
