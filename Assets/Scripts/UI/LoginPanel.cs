@@ -25,10 +25,10 @@ public class LoginPanel : BasePanel
         NetManager.AddMsgListener("MsgLogin", OnMsgLogin);
         NetManager.AddEventListener(NetManager.EventType.connectSuccess, OnConnectSuccess);
         NetManager.AddEventListener(NetManager.EventType.connectFail, OnConnectFail);
-
-        NetManager.Connect("127.0.0.1", 8888);
+        NetManager.Connect(NetManager.serverIP, 8888);
 
     }
+
 
     public override void OnClose()
     {

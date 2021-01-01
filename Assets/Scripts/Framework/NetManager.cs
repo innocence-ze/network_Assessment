@@ -3,14 +3,23 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using UnityEngine;
+using System.Net;
+
 
 /// <summary>
 /// net manager of client, 
 /// use asynchronous methods instead of blocking mathods
 /// </summary>
-public static class NetManager 
+public static class NetManager
 {
     #region socket, buffer and queue
+    static UdpClient udpClient;
+    const int udpPort = 6666;
+    const int serverPort = 7777;
+    public static string serverIP;
+    static System.Threading.Thread udpReceiveThread;
+    public static System.Action<string> onReceiveUDP;
+
     static Socket socket;
     static ByteArray receiveBuffer;
     static Queue<ByteArray> sendQueue;
@@ -36,7 +45,8 @@ public static class NetManager
 
     #region delegate and listener of event and message of network
     // event
-    public enum EventType{
+    public enum EventType
+    {
         connectSuccess,
         connectFail,
         close,
@@ -103,13 +113,13 @@ public static class NetManager
     }
     #endregion
 
-    #region socket method (asynchronous)
+    #region socket method (asynchronous tcp)
     public static void Connect(string ip, int port)
     {
-        if(socket != null && socket.Connected)
+        if (socket != null && socket.Connected)
         {
             Debug.LogWarning("Connect fail, already connected");
-            return;        
+            return;
         }
         if (isConnecting)
         {
@@ -156,7 +166,7 @@ public static class NetManager
             FireEvent(EventType.connectSuccess, "");
             isConnecting = false;
 
-            socket.BeginReceive(receiveBuffer.bytes, receiveBuffer.writeIndex, receiveBuffer.Remain,0, ReceiveCallback, skt);
+            socket.BeginReceive(receiveBuffer.bytes, receiveBuffer.writeIndex, receiveBuffer.Remain, 0, ReceiveCallback, skt);
 
         }
         catch (SocketException ex)
@@ -179,7 +189,7 @@ public static class NetManager
             //process data
             OnReceivingData();
 
-            if(receiveBuffer.Remain < 8)
+            if (receiveBuffer.Remain < 8)
             {
                 receiveBuffer.Move();
                 receiveBuffer.Resize(receiveBuffer.Length * 2);
@@ -225,7 +235,7 @@ public static class NetManager
             msgList.Add(msg);
             msgCount++;
         }
-        if(receiveBuffer.Length > 2)
+        if (receiveBuffer.Length > 2)
         {
             OnReceivingData();
         }
@@ -233,7 +243,9 @@ public static class NetManager
 
     public static void Close()
     {
-        if(socket == null || !socket.Connected)
+        UdpClose();
+
+        if (socket == null || !socket.Connected)
         {
             return;
         }
@@ -242,7 +254,7 @@ public static class NetManager
             return;
         }
 
-        if(sendQueue.Count > 0)
+        if (sendQueue.Count > 0)
         {
             isClosing = true;
         }
@@ -250,17 +262,17 @@ public static class NetManager
         {
             socket.Close();
             FireEvent(EventType.close, "");
-            isClosing = false; 
+            isClosing = false;
         }
     }
 
     public static void Send(MsgBase msg)
     {
-        if(socket == null || !socket.Connected)
+        if (socket == null || !socket.Connected)
         {
             return;
         }
-        if(isConnecting || isClosing)
+        if (isConnecting || isClosing)
         {
             return;
         }
@@ -286,7 +298,7 @@ public static class NetManager
             sendQueue.Enqueue(ba);
             count = sendQueue.Count;
         }
-        if(count == 1)
+        if (count == 1)
         {
             socket.BeginSend(sendBytes, 0, sendBytes.Length, 0, SendCallback, socket);
         }
@@ -295,7 +307,7 @@ public static class NetManager
     static void SendCallback(IAsyncResult ar)
     {
         Socket skt = ar.AsyncState as Socket;
-        if(skt == null || !skt.Connected)
+        if (skt == null || !skt.Connected)
         {
             return;
         }
@@ -309,12 +321,12 @@ public static class NetManager
             ba = sendQueue.Peek();
         }
         ba.readIndex += count;
-        if(ba.Length == 0)
+        if (ba.Length == 0)
         {
             lock (sendQueue)
             {
                 sendQueue.Dequeue();
-                if(sendQueue.Count > 0)
+                if (sendQueue.Count > 0)
                 {
                     ba = sendQueue.Peek();
                 }
@@ -325,15 +337,65 @@ public static class NetManager
             }
         }
 
-        if(ba != null)
+        if (ba != null)
         {
             skt.BeginSend(ba.bytes, ba.readIndex, ba.Length, 0, SendCallback, skt);
         }
         //after send all data, if system call close function, close socket
-        else if(isClosing)
+        else if (isClosing)
         {
             socket.Close();
             isClosing = false;
+        }
+    }
+    #endregion
+
+    #region socket method (thread udp)
+    public static void UdpOpen()
+    {
+        udpClient = new UdpClient(udpPort);
+        udpReceiveThread = new System.Threading.Thread(UDPReceiveThread);
+        udpReceiveThread.Start();
+    }
+    public static void UdpClose()
+    {
+        udpReceiveThread?.Abort();
+        udpClient?.Close();
+        udpClient = null;
+    }
+
+    public static void UdpSend(string udpSendString)
+    {
+        var udpStringToBytes = System.Text.Encoding.UTF8.GetBytes(udpSendString);
+        udpClient.Send(udpStringToBytes, udpStringToBytes.Length, new IPEndPoint(IPAddress.Broadcast, serverPort));
+    }
+
+    static void UDPReceiveThread()
+    {
+        IPEndPoint remotePoint = new IPEndPoint(IPAddress.Any, serverPort); // any
+
+        while (true)
+        {
+            try
+            {
+                byte[] receiveBytes = udpClient.Receive(ref remotePoint);
+                // block here ------------
+                string udpReceiveString = System.Text.Encoding.ASCII.GetString(receiveBytes);
+                serverIP = remotePoint.Address.ToString();
+                // do something
+                onReceiveUDP?.Invoke(udpReceiveString);
+            }
+            catch (SocketException ex)
+            {
+                if (ex.SocketErrorCode != SocketError.ConnectionReset)
+                {
+                    return;
+                }
+            }
+            catch (System.Threading.ThreadAbortException)
+            {
+
+            }
         }
     }
     #endregion
@@ -347,16 +409,16 @@ public static class NetManager
 
     public static void MsgUpdate()
     {
-        if(msgCount == 0)
+        if (msgCount == 0)
         {
             return;
         }
-        for(int i = 0; i < MAX_MESSAGE_FIRE; i++)
+        for (int i = 0; i < MAX_MESSAGE_FIRE; i++)
         {
             MsgBase msg = null;
             lock (msgList)
             {
-                if(msgList.Count > 0)
+                if (msgList.Count > 0)
                 {
                     msg = msgList[0];
                     msgList.RemoveAt(0);
@@ -376,18 +438,18 @@ public static class NetManager
 
     public static void PingUpdate()
     {
-        if(!isUsePing)
+        if (!isUsePing)
         {
             return;
         }
-        if(Time.time - lastPingTime > pingInterval)
+        if (Time.time - lastPingTime > pingInterval)
         {
             MsgPing msgPing = new MsgPing();
             Send(msgPing);
             lastPingTime = Time.time;
             Debug.Log("Send ping at: " + lastPingTime);
         }
-        if(Time.time - lastPongTime > 4* pingInterval)
+        if (Time.time - lastPongTime > 4 * pingInterval)
         {
             Debug.Log("Close");
             Close();
@@ -401,4 +463,8 @@ public static class NetManager
     }
 
     #endregion
+
+
+
+   
 }

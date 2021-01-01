@@ -51,7 +51,6 @@ public class ResultPanel : BasePanel
 	{
 		PanelManager.Open<RoomPanel>();
 		
-		NetManager.Send(MsgLeaveBattle)
 
 		Close();
 	}
